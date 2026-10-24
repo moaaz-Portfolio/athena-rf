@@ -1,0 +1,8 @@
+true/pred,arm_wave,fall,jumping,running,squatting,turning,walking
+arm_wave,2987,109,48,154,64,124,98
+fall,97,2363,40,753,104,162,65
+jumping,42,74,3104,16,169,81,98
+running,153,597,46,2499,47,121,121
+squatting,146,121,308,79,2262,394,274
+turning,213,171,137,103,221,2569,170
+walking,122,127,190,132,180,173,2660

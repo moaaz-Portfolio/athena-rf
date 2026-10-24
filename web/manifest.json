@@ -1,0 +1,16 @@
+{
+  "name": "ATHENA RF — ESP32-S3",
+  "version": "0.3.0",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        {
+          "path": "firmware/athena-rf-merged.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}

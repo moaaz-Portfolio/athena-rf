@@ -1,0 +1,3 @@
+# Network and collector settings are collected at runtime by the ATHENA-RF-Setup
+# access point portal and stored in NVS. Do not bake personal Wi-Fi credentials
+# into a public firmware build.
