@@ -1,0 +1,26 @@
+# ESP-IDF generated files and local credentials
+build/
+sdkconfig
+sdkconfig.old
+managed_components/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Collected CSI data can be large and may contain sensitive occupancy patterns.
+backend/data/recordings/*.jsonl
+backend/data/recordings/*.meta.json
+!backend/data/recordings/.gitkeep
+
+# Generated model artifacts
+models/*.pt
+models/metrics.json
+models/confusion_matrix.csv
+!models/.gitkeep
+
+# Public CSI datasets are downloaded locally and are not bundled into source control.
+datasets/ESP-Fi-HAR/
+# Generated firmware binary (download as a GitHub Actions artifact instead of committing it)
+web/firmware/*.bin
