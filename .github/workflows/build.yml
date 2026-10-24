@@ -1,0 +1,79 @@
+name: Build ATHENA RF firmware
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'main/**'
+      - 'CMakeLists.txt'
+      - 'partitions.csv'
+      - 'sdkconfig.defaults'
+      - 'web/flash.html'
+      - 'web/manifest.json'
+      - '.github/workflows/build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-esp32s3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ESP32-S3 firmware with ESP-IDF 5.5.5
+        run: |
+          docker run --rm -v "$PWD:/project" -w /project espressif/idf:v5.5.5 \
+            idf.py set-target esp32s3 build
+
+      - name: Merge complete flash image
+        run: |
+          docker run --rm -v "$PWD:/project" -w /project espressif/idf:v5.5.5 \
+            idf.py merge-bin -o build/athena-rf-merged.bin -f raw
+          test -s build/athena-rf-merged.bin
+
+      - name: Prepare browser flasher package
+        run: |
+          mkdir -p dist/athena-rf-web-flasher/firmware
+          cp web/flash.html dist/athena-rf-web-flasher/flash.html
+          cp web/manifest.json dist/athena-rf-web-flasher/manifest.json
+          cp build/athena-rf-merged.bin dist/athena-rf-web-flasher/firmware/athena-rf-merged.bin
+          cat > dist/athena-rf-web-flasher/FLASH-INSTRUCTIONS.txt <<'TXT'
+          ATHENA RF — Browser Flashing
+
+          1. Extract these files into your existing Athena-RF/web folder.
+          2. Start ATHENA with START-ATHENA.bat.
+          3. Open http://localhost:8080/flash.html in Chrome or Edge.
+          4. Connect the ESP32-S3 with a data USB cable and start flashing.
+          5. After reboot, connect to ATHENA-RF-Setup (password athena1234).
+          6. Open http://192.168.4.1 and enter 2.4 GHz Wi-Fi, PC IPv4 and UDP port 5005.
+          7. Reconnect the PC to its normal Wi-Fi and allow inbound UDP 5005 in Windows Firewall.
+
+          Never use this firmware on a different chip family. Flashing can erase old firmware/settings.
+          This is an experimental CSI activity-classification prototype, not a validated people counter
+          or medical sensor.
+          TXT
+
+      - name: Upload browser flasher package
+        uses: actions/upload-artifact@v4
+        with:
+          name: athena-rf-web-flasher
+          path: dist/athena-rf-web-flasher/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload raw build files for debugging
+        uses: actions/upload-artifact@v4
+        with:
+          name: athena-rf-esp32s3-build
+          path: |
+            build/athena-rf-merged.bin
+            build/athena_rf.bin
+            build/bootloader/bootloader.bin
+            build/partition_table/partition-table.bin
+            build/flasher_args.json
+            build/flash_args
+            build/ota_data_initial.bin
+            build/project_description.json
+          if-no-files-found: warn
+          retention-days: 30
